@@ -5,6 +5,7 @@ import KubeSelect from "./components/TB/KubeSelect.vue";
 import OctalInput from "./components/TB/OctalInput.vue";
 import getList from "./api/apis.js";
 import Child from "./components/Child.vue";
+import StringORNumberInput from "./components/TB/StringORNumberInput.vue";
 const mt = (items) => {
   items.forEach(item => {
     console.log(item, "back call");
@@ -140,13 +141,13 @@ onBeforeMount(()=>{
     data.value = res.data.data.pods
   })
 })
-
+const numOrStr = ref("")
 </script>
 
 <template>
   {{clusterData}}--{{namespaceData}}
   <KubeSelect v-model:cluster="clusterData" v-model:namespace="namespaceData" :clusterOptions="options" :namespaceOptions="options2.items" @changeCluster="changeNum" @changeNamespace="changeNS" :namespace-show="true"></KubeSelect>
-  <Tables :data="data"  :columns="columns" :multipleSelect="false" @multiple-select="mt">
+  <Tables :data="data"  :columns="columns" :multipleSelect="true" @multiple-select="mt">
     <template #table-ext>
       <el-table-column  label="操作" fixed="right" width="180px">
         <template #default="scope">
@@ -158,6 +159,8 @@ onBeforeMount(()=>{
   </Tables>
   <OctalInput v-model="inputData"></OctalInput>
   {{inputData}}
+  <StringORNumberInput v-model="numOrStr"></StringORNumberInput>
+  {{ typeof numOrStr}} --
 </template>
 
 <style scoped>
