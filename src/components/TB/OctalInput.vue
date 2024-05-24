@@ -1,13 +1,12 @@
 <script setup>
 const props = defineProps({
-  data: {
-    type: [String, Number]
-  },
   defaultValue: {
     type: Number,
     default: 420
   }
 })
+
+const data = defineModel()
 
 // 八进制转10进制
 const convertToOct = (value) => {
@@ -24,14 +23,8 @@ const convertToOct = (value) => {
   return value
 }
 
-// 数据更新处理
-const emits = defineEmits(['update:data']);
-const inputModify = (value) => {
-  emits("update:data", value)
-}
 const changeValue = (value) => {
-  value = convertToOct(value)
-  emits("update:data", value)
+  data.value = convertToOct(value)
 }
 </script>
 
@@ -43,9 +36,10 @@ const changeValue = (value) => {
   {
       const inputData = ref("")
   }
-  <OctalInput v-model:data="inputData" :defaultValue=420></OctalInput>
+  <OctalInput v-model="inputData" :defaultValue=420></OctalInput>
+  使用defineModel()进行数据双向绑定
   -->
-  <el-input @input="inputModify" @change="changeValue" :model-value="data"></el-input>
+  <el-input @change="changeValue" v-model="data"></el-input>
 </template>
 
 <style scoped>

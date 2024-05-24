@@ -1,14 +1,6 @@
 <script setup>
 
-import {reactive, ref, watch} from "vue";
-
 const props = defineProps({
-  clusterData: {
-    type: String
-  },
-  namespaceData: {
-    type: String
-  },
   size: {
     default: "default"
   },
@@ -47,14 +39,17 @@ const props = defineProps({
   }
 })
 
-const emits = defineEmits(["changeCluster", "changeNamespace", "update:clusterData", "update:namespaceData"])
-const namespaceChange = (value) => {
-  emits("update:namespaceData", value)
-  emits("changeNamespace", value)
+const cluster = defineModel('cluster')
+const namespace = defineModel('namespace')
+
+const emits = defineEmits(["changeCluster", "changeNamespace"])
+const clusterChange = () => {
+  // 选择集群改变的时候会调函数
+  emits("changeCluster")
 }
-const clusterChange = (value) => {
-  emits("update:clusterData", value)
-  emits("changeCluster", value)
+const namespaceChange = () => {
+  // 选择namespace改变的时候会调函数
+  emits("changeNamespace")
 }
 
 </script>
@@ -68,25 +63,16 @@ const clusterChange = (value) => {
     const clusterData = ref("Option1")
     const namespaceData = ref("default")
   }
-    <KubeSelect
-    v-model:clusterData="clusterData"
-    v-model:namespaceData="namespaceData"
-    :clusterOptions="options"
-    :namespaceOptions="options2.items"
-    @changeCluster="changeNum"
-    @changeNamespace="changenamespace"
-    :namespace-show="true"></KubeSelect>
-
+ <KubeSelect v-model:cluster="clusterData" v-model:namespace="namespaceData" :clusterOptions="options" :namespaceOptions="options2.items" @changeCluster="changeNum" @changeNamespace="changeNS" :namespace-show="true"></KubeSelect>
   -->
   <div class="flex flex-wrap gap-4 items-center">
     <el-select
-        :model-value="clusterData"
+        v-model="cluster"
         :size="props.size"
         :style="{width: props.width}"
         :placeholder="props.clusterPlaceholder"
         :no-data-text="props.clusterDataText"
         @change="clusterChange"
-
     >
       <el-option
           v-for="item in props.clusterOptions"
@@ -98,13 +84,13 @@ const clusterChange = (value) => {
     <el-select
         v-if="props.namespaceShow"
         :size="props.size"
-        :model-value="namespaceData"
+        v-model="namespace"
         :placeholder="props.namespacePlaceholder"
         :style="{width: props.width}"
         :no-data-text="props.namespaceDataText"
         @change="namespaceChange"
     >
-      <el-option
+    <el-option
           v-for="item in props.namespaceOptions"
           :key="item.value"
           :label="item.label"

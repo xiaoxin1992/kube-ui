@@ -1,53 +1,10 @@
 <script setup>
 import Tables from "./components/TB/Tables.vue";
-import {reactive, ref} from "vue";
+import {onBeforeMount, onMounted, reactive, ref} from "vue";
 import KubeSelect from "./components/TB/KubeSelect.vue";
 import OctalInput from "./components/TB/OctalInput.vue";
-let data =[
-  {
-    date: '2016-05-03',
-    name: 'Tom',
-    address: 'No. 189, Grove St, Los Angeles',
-    time: '2016-05-03',
-  },
-  {
-    date: '2016-05-02',
-    name: 'Tom',
-    address: 'No. 189, Grove St, Los Angeles',
-    time: '2016-05-03',
-  },
-  {
-    date: '2016-05-04',
-    name: 'Tom',
-    address: 'No. 189, Grove St, Los Angeles',
-    time: '2016-05-03',
-  },
-  {
-    date: '2016-05-01',
-    name: 'Tom',
-    address: 'No. 189, Grove St, Los Angeles',
-    time: '2016-05-03',
-  },
-]
-const columns = [
-  {
-    prop: "name",
-    label: "Name",
-    width: "150px",
-    formatter: (row) => {
-      return row.name.toUpperCase();
-    }
-  },
-  {
-    prop: "address",
-    label: "Address",
-  },
-  {
-    prop: "date",
-    label: "Date",
-    fixed: "right",  // right || left
-  },
-]
+import getList from "./api/apis.js";
+import Child from "./components/Child.vue";
 const mt = (items) => {
   items.forEach(item => {
     console.log(item, "back call");
@@ -112,13 +69,83 @@ const changeNum = (obj) => {
   options2.items = options3.items
   console.log(options2, options3)
 }
+const changeNS = (obj) => {
+  console.log("change namespace", namespaceData.value)
+}
+
 const inputData = ref("")
 const clusterData = ref("Option1")
 const namespaceData = ref("default")
+// let data =[
+//   {
+//     date: '2016-05-03',
+//     name: 'Tom',
+//     address: 'No. 189, Grove St, Los Angeles',
+//     time: '2016-05-03',
+//   },
+//   {
+//     date: '2016-05-02',
+//     name: 'Tom',
+//     address: 'No. 189, Grove St, Los Angeles',
+//     time: '2016-05-03',
+//   },
+//   {
+//     date: '2016-05-04',
+//     name: 'Tom',
+//     address: 'No. 189, Grove St, Los Angeles',
+//     time: '2016-05-03',
+//   },
+//   {
+//     date: '2016-05-01',
+//     name: 'Tom',
+//     address: 'No. 189, Grove St, Los Angeles',
+//     time: '2016-05-03',
+//   },
+// ]
+// const columns = [
+//   {
+//     prop: "name",
+//     label: "Name",
+//     width: "150px",
+//     formatter: (row) => {
+//       return row.name.toUpperCase();
+//     }
+//   },
+//   {
+//     prop: "address",
+//     label: "Address",
+//   },
+//   {
+//     prop: "date",
+//     label: "Date",
+//     fixed: "right",  // right || left
+//   },
+// ]
+let data = ref([])
+let columns = ref([
+  {
+    prop: "metadata.name",
+    label: "Name",
+  },
+  {
+    prop: "metadata.namespace",
+    label: "namespace",
+  }
+])
+onBeforeMount(()=>{
+  getList().then((res) => {
+    // console.log(res.data.data.pods)
+    // data = res.data.data.pods
+    // console.log(data)
+    data.value = res.data.data.pods
+  })
+})
+
 </script>
 
 <template>
-  <KubeSelect v-model:clusterData="clusterData" v-model:namespaceData="namespaceData" :clusterOptions="options" :namespaceOptions="options2.items" @changeCluster="changeNum" :namespace-show="true"></KubeSelect>
+  {{clusterData}}--{{namespaceData}}
+  <KubeSelect v-model:cluster="clusterData" v-model:namespace="namespaceData" :clusterOptions="options" :namespaceOptions="options2.items" @changeCluster="changeNum" @changeNamespace="changeNS" :namespace-show="true"></KubeSelect>
   <Tables :data="data"  :columns="columns" :multipleSelect="false" @multiple-select="mt">
     <template #table-ext>
       <el-table-column  label="操作" fixed="right" width="180px">
@@ -129,7 +156,7 @@ const namespaceData = ref("default")
       </el-table-column>
     </template>
   </Tables>
-  <OctalInput v-model:data="inputData"></OctalInput>
+  <OctalInput v-model="inputData"></OctalInput>
   {{inputData}}
 </template>
 
